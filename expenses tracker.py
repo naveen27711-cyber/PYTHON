@@ -1,96 +1,87 @@
-expenses_tracker = []
+import json
 
-def add_income():
+expenses = []
+
+def load_expenses():
     try:
-        income = float(input("enter amount : "))
-    except ValueError:
-        return "income must in number"
-        
-    source = input("enter source : ")
-    date = input("enter date :")
+        with open("Expenses tracker","r") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
 
-    result = {"income" : income ,"source" : source, "date" : date}
+    
 
-    expenses_tracker.append(result)
-    return "Income added successfully!"
+def add_expenses():
+    while True:
+        try:
+            amount = float(input("Enter amount: "))
+            break
+        except ValueError :
+            print("Amount must in numbers!")
 
-def add_expense():
- 
-    try:
-        amount = float(input("enter amount : "))
-    except ValueError:
-        return "amount must in number "
-            
-    category = input("enter category :")
-    date = input("enter date :")
-    description = input("enter description : ")
 
-    result = {"amount" : amount, "category" : category, "date" : date, "description" : description}
- 
+    category = input("Enter category: ")
+    date = input("Enter date: ")
+    note = input("Enter note: ")
 
-    expenses_tracker.append(result)
+    new_expense = {
+        "amount": amount,
+        "category": category,
+        "date": date,
+        "note": note
+    }
+    expenses.append(new_expense)
+
+    with open("Expenses tracker", "w") as f:
+        json.dump(expenses, f)
+
     return "Expense added successfully!"
 
-
 def view_expenses():
-    if not  expenses_tracker:
-        print("No Expenses Added!")
-        return
+    if not expenses:
+        return "expenses is empty!"
+    print("==== Your Expenses ====")
 
-    for e in expenses_tracker:
-        if "amount" in e:
-            print( e)
-          
+    for e in expenses:
+        print(e)
+expenses = load_expenses()
 
 
-def cheak_balance():
-    total_income = 0
-    total_expenses = 0
 
-    for r in expenses_tracker:
-        if "amount" in r:
-            total_expenses += r["amount"]
-        else:
-            total_income += r["income"]
-
-    print("Total income :" ,total_income)
-    print("Total expenses : ",total_expenses)
-    print("Current balance :",total_income - total_expenses)
-
-def exit_program():
-    print("Bye Bye")
+def monthly_expenses():
+    month = input("enter year and month : ")
+    found = False
+    print("==== Your Monthly Expenses ====")
+    for e in expenses:
+        if  e["date"][:7] == month[:7]:
+            print(e)
+            found = True  
+    if not found:
+        print("No expenses found!")            
+ 
 
 
 while True:
-    print("===== EXPENSIVE TRACKER =====")
-    print("Add income    : 1")
-    print("Add expenses  : 2")
-    print("View expenses : 3")
-    print("Cheak balance : 4")
-    print("Exit          : 5")
-    print("=" * 30)
+    print("\n==== Expenses Tracker ====")
+    print("1. Add expenses")
+    print("2. View expenses")
+    print("3. Monthly expenses")
+    print("4. Exit")
+ 
+    user_choice = input("Enter choice: ")
+ 
+    if user_choice == "1":
+        print(add_expenses())
 
-    try:
-        User_Input = int(input("Enter User Choice : "))
-    except ValueError:
-        print("Choice Must Be Number Only!")
-        continue
-
-    if User_Input == 1:
-        print(add_income())
-        
-
-    elif User_Input == 2:
-        print(add_expense())
-
-    elif User_Input == 3:
+    elif user_choice == "2":
         view_expenses()
 
-    elif User_Input == 4:
-        cheak_balance()
+    elif user_choice == "3":
+        monthly_expenses()
 
-    elif User_Input == 5:
-        exit_program()
-        break 
+    elif user_choice == "4":
+        print("Goodbye!")
+        break
+
     else:
-        print("invalid")
+        print("Invalid choice!")
